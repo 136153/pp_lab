@@ -70,7 +70,7 @@ kalloc(void)
 {
   struct run *r;
 
-  acquire(&kmem.lock);
+  acquire(&kmem.lock); // 获取自旋锁
   r = kmem.freelist;
   if(r)
     kmem.freelist = r->next;
