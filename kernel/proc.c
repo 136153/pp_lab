@@ -5,6 +5,7 @@
 #include "spinlock.h"
 #include "proc.h"
 #include "defs.h"
+#include "sysinfo.h"
 
 struct cpu cpus[NCPU];
 
@@ -79,13 +80,13 @@ mycpu(void)
 }
 
 // Return the current struct proc *, or zero if none.
-struct proc*
-myproc(void)
+struct proc*                        // struct proc 是 xv6 中用来描述一个进程的“档案袋”（进程控制块 PCB），里面装着进程号、内存页表、运行状态等所有信息。
+myproc(void)                        // 找出当前正在这个 CPU 上运行的进程，并返回它的“档案袋”（进程控制块指针）。
 {
   push_off();
-  struct cpu *c = mycpu();
-  struct proc *p = c->proc;
-  pop_off();
+  struct cpu *c = mycpu();          // 找到当前正在执行代码的这个 CPU 核心，并获取它的信息结构体。
+  struct proc *p = c->proc;          //在 xv6 的设计中，每个 CPU 结构体（struct cpu）里都有一个 proc 指针，专门用来记录“此时此刻，我正在运行哪个进程”。这行代码就是把这个指针拿出来，赋值给局部变量 p。
+  pop_off();                        //允许中断
   return p;
 }
 
@@ -145,6 +146,8 @@ found:
   memset(&p->context, 0, sizeof(p->context));
   p->context.ra = (uint64)forkret;
   p->context.sp = p->kstack + PGSIZE;
+
+  p -> syscall_trace = 0;
 
   return p;
 }
@@ -309,6 +312,8 @@ fork(void)
   np->cwd = idup(p->cwd);
 
   safestrcpy(np->name, p->name, sizeof(p->name));
+
+  np->syscall_trace = p->syscall_trace;
 
   pid = np->pid;
 
@@ -681,3 +686,17 @@ procdump(void)
     printf("\n");
   }
 }
+
+uint64
+count_process(void) { // added function for counting used process slots (lab2)
+  uint64 cnt = 0;
+  for(struct proc *p = proc; p < &proc[NPROC]; p++) {
+    // acquire(&p->lock);
+    // 不需要锁进程 proc 结构，因为我们只需要读取进程列表，不需要写
+    if(p->state != UNUSED) { // 不是 UNUSED 的进程位，就是已经分配的
+        cnt++;
+    }
+  }
+  return cnt;
+}
+

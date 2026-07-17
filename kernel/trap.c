@@ -34,7 +34,7 @@ trapinithart(void)
 // called from trampoline.S
 //
 void
-usertrap(void)
+usertrap(void)                    //当用户态的程序因为任何原因（系统调用、异常、中断）陷入内核时，硬件最终都会把控制权交到这里。
 {
   int which_dev = 0;
 
@@ -50,7 +50,7 @@ usertrap(void)
   // save user program counter.
   p->trapframe->epc = r_sepc();
   
-  if(r_scause() == 8){
+  if(r_scause() == 8){         
     // system call
 
     if(killed(p))
@@ -80,7 +80,7 @@ usertrap(void)
   if(which_dev == 2)
     yield();
 
-  usertrapret();
+  usertrapret();              //降级为用户态
 }
 
 //
@@ -129,7 +129,7 @@ usertrapret(void)
   ((void (*)(uint64))trampoline_userret)(satp);
 }
 
-// interrupts and exceptions from kernel code go here via kernelvec,
+// interrupts and exceptions from kernel code go here via kernelvec,     来自内核代码的中断和异常通过kernelvec被导向到这里，在当前的内核栈上进行处理。
 // on whatever the current kernel stack is.
 void 
 kerneltrap()
@@ -155,7 +155,7 @@ kerneltrap()
     yield();
 
   // the yield() may have caused some traps to occur,
-  // so restore trap registers for use by kernelvec.S's sepc instruction.
+  // so restore trap registers for use by kernelvec.S's sepc instruction.   yield() 可能会导致一些陷阱发生，因此需要恢复陷阱寄存器，以便 kernelvec.S 中的 sepc 指令使用。
   w_sepc(sepc);
   w_sstatus(sstatus);
 }
