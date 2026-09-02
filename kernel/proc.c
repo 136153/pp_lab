@@ -483,6 +483,8 @@ scheduler(void)
 // be proc->intena and proc->noff, but that would
 // break in the few places where a lock is held but
 // there's no process.
+
+// 切换到调度器。必须仅持有 p->lock，并且已更改 proc->state。由于 intena 是此内核线程的属性，而非此 CPU 的属性，因此需要保存和恢复 intena。它应为 proc->intena 和 proc->noff，但那样会在某些锁被持有但没有进程的情况下导致问题。
 void
 sched(void)
 {
@@ -504,6 +506,7 @@ sched(void)
 }
 
 // Give up the CPU for one scheduling round.
+// 为一个调度周期释放CPU。
 void
 yield(void)
 {

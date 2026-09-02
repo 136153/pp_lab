@@ -13,6 +13,15 @@
 // * Only one process at a time can use a buffer,
 //     so do not keep them longer than necessary.
 
+// 缓冲区缓存。
+// 缓冲区缓存是一个由 buf 结构组成的链表，用于保存磁盘块内容的缓存副本。将磁盘块缓存在内存中可以减少磁盘读取次数，同时为多个进程共享的磁盘块提供同步点。
+// 接口说明：
+// * 要获取某个磁盘块的缓冲区，请调用 bread。
+// * 修改缓冲区数据后，调用 bwrite 将其写入磁盘。
+// * 使用完缓冲区后，调用 brelse 释放。
+// * 在调用 brelse 后，不得再使用该缓冲区。
+// * 每个缓冲区同一时间只能被一个进程使用，
+//     因此请勿比必要的时间更久地持有缓冲区。
 
 #include "types.h"
 #include "param.h"
@@ -30,6 +39,10 @@ struct {
   // Linked list of all buffers, through prev/next.
   // Sorted by how recently the buffer was used.
   // head.next is most recent, head.prev is least.
+
+  // 所有缓冲区的链表，通过 prev/next 连接。
+// 按缓冲区最近使用的时间排序。
+// head.next 为最近使用的，head.prev 为最久未使用的。
   struct buf head;
 } bcache;
 
@@ -55,6 +68,10 @@ binit(void)
 // Look through buffer cache for block on device dev.
 // If not found, allocate a buffer.
 // In either case, return locked buffer.
+
+// 在设备 dev 上查找缓冲区缓存中的块。  
+// 如果未找到，则分配一个缓冲区。  
+// 无论哪种情况，均返回已锁定的缓冲区。
 static struct buf*
 bget(uint dev, uint blockno)
 {

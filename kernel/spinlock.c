@@ -18,6 +18,9 @@ initlock(struct spinlock *lk, char *name)
 
 // Acquire the lock.
 // Loops (spins) until the lock is acquired.
+
+// 获取锁。
+// 循环（旋转）直到获取到锁。
 void
 acquire(struct spinlock *lk)
 {

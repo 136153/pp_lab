@@ -9,6 +9,16 @@
 // routines.  The (higher-level) system call implementations
 // are in sysfile.c.
 
+
+// 文件系统实现。包含五个层次：
+//   + 块：用于原始磁盘块的分配器。
+//   + 日志：多步更新的崩溃恢复机制。
+//   + 文件：i节点分配器，读写操作和元数据管理。
+//   + 目录：具有特殊内容的i节点（其他i节点的列表）！
+//   + 名称：如 /usr/rtm/xv6/fs.c 这样的路径，便于命名。//
+// 本文件包含底层的文件系统操作函数。  
+// （高层）系统调用的实现位于 sysfile.c 中。
+
 #include "types.h"
 #include "riscv.h"
 #include "defs.h"

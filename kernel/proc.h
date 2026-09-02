@@ -40,6 +40,16 @@ extern struct cpu cpus[NCPU];
 // the trapframe includes callee-saved user registers like s0-s11 because the
 // return-to-user path via usertrapret() doesn't return through
 // the entire kernel call stack.
+
+// 用于 trampoline.S 中陷阱处理代码的每个进程数据。
+// 位于用户页表中 trampoline 页面下方的一个独立页面内，在内核页表中没有特殊映射。
+// trampoline.S 中的 uservec 会将用户寄存器保存到 trapframe 中，
+// 然后从 trapframe 的 kernel_sp、kernel_hartid、kernel_satp 初始化寄存器，
+// 并跳转至 kernel_trap。
+// trampoline.S 中的 usertrapret() 和 userret 会设置 trapframe 的 kernel_* 字段，
+// 从 trapframe 恢复用户寄存器，切换回用户页表，并进入用户空间。
+// trapframe 包含了被调用者保存的用户寄存器（如 s0-s11），因为通过 usertrapret() 返回用户的路径
+// 不会经过完整的内核调用栈。
 struct trapframe {
   /*   0 */ uint64 kernel_satp;   // kernel page table
   /*   8 */ uint64 kernel_sp;     // top of process's kernel stack

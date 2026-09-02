@@ -43,6 +43,11 @@ freerange(void *pa_start, void *pa_end)
 // which normally should have been returned by a
 // call to kalloc().  (The exception is when
 // initializing the allocator; see kinit above.)
+
+// 释放由 pa 指向的物理内存页，  
+// 此页通常应由 kalloc() 调用返回。  
+// （初始化分配器时例外；参见上面的 kinit。）
+
 void
 kfree(void *pa)
 {

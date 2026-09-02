@@ -175,7 +175,7 @@ clockintr()
 // 1 if other device,
 // 0 if not recognized.
 int
-devintr()
+devintr()                                               // 设备中断分发
 {
   uint64 scause = r_scause();
 
